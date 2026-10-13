@@ -24,12 +24,38 @@ The project has been completely overhauled to use modern technologies and provid
 *   **Integrated Details Panel:** The status and operation details are now seamlessly integrated into the main window via a toggleable bottom panel, replacing the old, intrusive pop-up dialogs.
 *   **Modern Iconography:** Buttons have been updated to use modern GTK symbolic icons combined with text labels, guaranteeing visibility across all system themes and ensuring actions are clear and intuitive.
 
+
 ## Requirements
 
 *   Python 3.x
 *   PyGObject (`python3-gi`)
 *   GTK 3
-*   `pk2cmd` (Ensure you have a modern build from GitHub installed and accessible in your system's PATH)
+*   `pk2cmd` (see below)
+
+## Installing pk2cmd
+
+Dwarf requires the `pk2cmd` command-line tool to communicate with PICkit hardware. Dwarf does **not** include or distribute pk2cmd — you must install it separately.
+
+### Option 1: Community Builds (Recommended)
+Several community-maintained forks provide pre-built binaries:
+*   [jaka-fi/pk2cmd](https://github.com/jaka-fi/pk2cmd) — supports PICkit 2, PICkit 3, and PKOB
+*   [boborjan2/pk2cmd](https://github.com/boborjan2/pk2cmd) — fork with libusb-1.0 support
+
+### Option 2: Build from Source
+Clone any pk2cmd repository and compile:
+```bash
+cd pk2cmd
+make linux
+sudo cp pk2cmd /usr/local/bin/
+```
+
+### Option 3: PICkitPlus (Commercial)
+[PICkitPlus](https://www.pickitplus.co.uk/) offers a commercial, fully maintained alternative with the latest device support.
+
+### Making pk2cmd available
+Place the `pk2cmd` binary in any directory on your `PATH`, for example:
+*   `~/.local/bin/` (user-local, no root needed)
+*   `/usr/local/bin/` (system-wide)
 
 ## Usage
 
@@ -37,3 +63,14 @@ Simply run the script:
 ```bash
 ./dwarf
 ```
+
+If `pk2cmd` is not found, Dwarf will show a dialog with installation instructions.
+
+## License
+
+Dwarf is free software released under the **GNU General Public License v3** (GPL-3.0). See [LICENSE.txt](doc/LICENSE.txt) for details.
+
+## Third-Party Notice
+
+`pk2cmd` is proprietary software owned by Microchip Technology Inc., distributed under its own license terms. Dwarf is an independent GUI wrapper and does not include, bundle, or redistribute pk2cmd or its device files. See [NOTICE](NOTICE) for details.
+
