@@ -8,7 +8,7 @@
 # Original:
 # Copyright (C) 2009 Nathan Dumont
 #
-# Modernization:
+# Modernization (2026) djarky:
 # Python 3 + PyGObject + GTK 3
 #
 
@@ -17,10 +17,6 @@ gi.require_version("Gtk", "3.0")
 
 from gi.repository import Gtk, Gdk, GLib
 from urllib.parse import unquote, urlparse
-import urllib.request
-import json
-import stat
-import threading
 from subprocess import Popen, PIPE
 import os
 import sys
@@ -28,7 +24,7 @@ import getopt
 import shutil
 
 
-VERSION = "0.3-2026"
+VERSION = "0.4-2026"
 
 APP_FOLDER = os.path.dirname(os.path.abspath(__file__))
 
@@ -888,48 +884,35 @@ class PicKit:
         self.parent = parent
         self.device = ""
 
-    def install_pk2cmd(self):
-        def _download_thread():
-            try:
-                url = "https://api.github.com/repos/jaka-fi/pk2cmd/releases/latest"
-                req = urllib.request.Request(url, headers={'User-Agent': 'Dwarf-App'})
-                with urllib.request.urlopen(req) as response:
-                    data = json.loads(response.read().decode())
-                
-                download_url = None
-                for asset in data.get("assets", []):
-                    if asset.get("name", "").endswith(".AppImage"):
-                        download_url = asset.get("browser_download_url")
-                        break
-                        
-                if not download_url:
-                    GLib.idle_add(self.parent.status, "AppImage not found in release", "", "red")
-                    return
-                    
-                GLib.idle_add(self.parent.status, "Downloading pk2cmd AppImage...", download_url, "yellow")
-                
-                bin_dir = os.path.expanduser("~/.local/bin")
-                os.makedirs(bin_dir, exist_ok=True)
-                target_path = os.path.join(bin_dir, "pk2cmd")
-                
-                if bin_dir not in os.environ.get("PATH", ""):
-                    os.environ["PATH"] = bin_dir + os.pathsep + os.environ.get("PATH", "")
-                
-                urllib.request.urlretrieve(download_url, target_path)
-                
-                st = os.stat(target_path)
-                os.chmod(target_path, st.st_mode | stat.S_IEXEC)
-                
-                GLib.idle_add(self.parent.status, "Install Succeeded. Reconnecting...", "", "green")
-                GLib.timeout_add(1000, self.connect)
-                
-            except Exception as e:
-                GLib.idle_add(self.parent.status, "Installation Failed", str(e), "red")
-
-        self.parent.status("Starting installation...", "", "yellow")
-        t = threading.Thread(target=_download_thread)
-        t.daemon = True
-        t.start()
+    def show_install_help(self):
+        """Show a dialog with instructions on how to obtain and install pk2cmd."""
+        dialog = Gtk.MessageDialog(
+            transient_for=self.parent,
+            flags=Gtk.DialogFlags.MODAL,
+            message_type=Gtk.MessageType.INFO,
+            buttons=Gtk.ButtonsType.CLOSE,
+            text="How to Install pk2cmd"
+        )
+        dialog.format_secondary_markup(
+            "<b>pk2cmd</b> is a command-line tool originally developed by "
+            "Microchip Technology for PICkit programmers.\n\n"
+            "Dwarf requires pk2cmd to be installed and available in your "
+            "system PATH.\n\n"
+            "<b>Options to obtain pk2cmd:</b>\n\n"
+            "  1. <b>Community builds</b> — search for pk2cmd AppImage or\n"
+            "     binary builds on GitHub (e.g. jaka-fi/pk2cmd,\n"
+            "     boborjan2/pk2cmd, or other forks).\n\n"
+            "  2. <b>Build from source</b> — clone a pk2cmd repository\n"
+            "     and compile it with <tt>make linux</tt>.\n\n"
+            "  3. <b>PICkitPlus</b> — a commercial alternative at\n"
+            "     <tt>www.pickitplus.co.uk</tt> with updated device\n"
+            "     support.\n\n"
+            "Once installed, place the <tt>pk2cmd</tt> binary in a\n"
+            "directory on your PATH (e.g. <tt>~/.local/bin/</tt> or\n"
+            "<tt>/usr/local/bin/</tt>), then click <b>Detect</b>."
+        )
+        dialog.run()
+        dialog.destroy()
 
     def detect_programmer(self):
         """Scans for connected PICkit programmers and returns the name/type."""
@@ -978,16 +961,17 @@ class PicKit:
             )
             dialog.format_secondary_text(
                 "The pk2cmd command line program could not be found.\n\n"
-                "Would you like to automatically download and install the latest AppImage from GitHub to ~/.local/bin?"
+                "pk2cmd must be installed and available in your system PATH "
+                "to use Dwarf. Click 'Help' for installation instructions."
             )
-            dialog.add_button("Cancel", Gtk.ResponseType.CANCEL)
-            dialog.add_button("Install", Gtk.ResponseType.ACCEPT)
+            dialog.add_button("Close", Gtk.ResponseType.CANCEL)
+            dialog.add_button("Help", Gtk.ResponseType.ACCEPT)
             
             response = dialog.run()
             dialog.destroy()
             
             if response == Gtk.ResponseType.ACCEPT:
-                self.install_pk2cmd()
+                self.show_install_help()
             return False
 
         prog_type = self.detect_programmer()

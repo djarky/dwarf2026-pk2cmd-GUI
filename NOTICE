@@ -1,0 +1,45 @@
+THIRD-PARTY SOFTWARE NOTICES
+============================
+
+Dwarf is an independent graphical user interface (GUI) that invokes external
+command-line tools. It does NOT include, bundle, or redistribute any of the
+third-party software listed below.
+
+pk2cmd
+------
+pk2cmd is a command-line programming utility originally developed by
+Microchip Technology Inc. for use with PICkit 2 and PICkit 3 programmers.
+
+  Copyright (c) 2005-2009 Microchip Technology Inc. All rights reserved.
+
+pk2cmd is proprietary software distributed under the Microchip PICkit 2
+PK2CMD Software License. It is NOT open-source software (not MIT, not GPL).
+Key terms of the Microchip license include:
+  - Use, modification, and distribution are permitted only for use with
+    Microchip products.
+  - All intellectual property rights remain with Microchip.
+  - Sublicensing is not permitted.
+
+Users must obtain pk2cmd independently and agree to Microchip's license
+terms. Dwarf merely invokes pk2cmd as an external process.
+
+PK2DeviceFile.dat
+-----------------
+The device data file (PK2DeviceFile.dat) used by pk2cmd contains
+programming scripts and device definitions. It was originally created by
+Microchip. Community members, including the PICkitPlus team (Anobium),
+have independently extended this file to support additional devices.
+The PICkitPlus team's contributions to the device file are subject to
+their own copyright.
+
+Dwarf does not distribute or modify PK2DeviceFile.dat.
+
+Dwarf
+-----
+Dwarf itself is free software, licensed under the GNU General Public
+License v3 (GPL-3.0).
+
+  Original author: Copyright (C) 2009 Nathan Dumont
+  Modernization (2026) djarky: Python 3 + PyGObject + GTK 3
+
+See doc/LICENSE.txt for the full GPL-3.0 license text.
